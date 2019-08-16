@@ -525,8 +525,8 @@ sys.path.append('../scripts')
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 import helpers as hp
 import pickle as pkl
 import itertools as it
@@ -541,20 +541,20 @@ from sklearn.metrics import f1_score, precision_score, recall_score,\
                             accuracy_score, classification_report
 
 #from IPython.core.interactiveshell import InteractiveShell
-from matplotlib import rcParams
-from importlib import reload
+#from matplotlib import rcParams
+#from importlib import reload
 #from model_generator import deep_er_model_generator
-pd.options.display.max_colwidth = 1000
+#pd.options.display.max_colwidth = 1000
 
-rcParams['font.family'] = 'serif'
-rcParams['font.serif'] = 'times new roman'
+#rcParams['font.family'] = 'serif'
+#rcParams['font.serif'] = 'times new roman'
 
 #%config InlineBackend.figure_format = 'retina'
 #%matplotlib inline
 
 
 
-reload(hp)
+#reload(hp)
 
 with open('./embedding/fasttext-300.map', 'rb') as f:
     map = pkl.load(f)
@@ -666,17 +666,17 @@ import time
 
 
 import pickle as pkl
-with open('./dataset_fit_trainnoimg.map', 'wb') as f:
+with open('./dataset_fit_trainimg.map', 'wb') as f:
       pkl.dump(X_train, f)
-with open('./dataset_fit_testnoimg.map', 'wb') as f:
+with open('./dataset_fit_testimg.map', 'wb') as f:
       pkl.dump(X_test, f)
-with open('./y_fit_testnoimg.map', 'wb') as f:
+with open('./y_fit_testimg.map', 'wb') as f:
       pkl.dump(y_test, f)
-with open('./y_fit_trainnoimg.map', 'wb') as f:
+with open('./y_fit_trainimg.map', 'wb') as f:
       pkl.dump(y_train, f)
-with open('./y_fit_valnoimg.map', 'wb') as f:
+with open('./y_fit_valimg.map', 'wb') as f:
       pkl.dump(y_val, f)
-with open('./dataset_fit_valnoimg.map', 'wb') as f:
+with open('./dataset_fit_valimg.map', 'wb') as f:
       pkl.dump(X_val, f)
 
 class DataGenerator(keras.utils.Sequence):
@@ -758,9 +758,13 @@ training_generator = DataGenerator(X_train, y_train, batch_size=100)
 validation_generator = DataGenerator(X_val, y_val, batch_size = 100)
 print('len', len(X_train[1]))
 import keras
-earlystop = keras.callbacks.EarlyStopping(monitor='val_auroc', min_delta=0, patience=2, verbose=0, mode='max', baseline=None, restore_best_weights=False)
-history = model.fit_generator(generator=training_generator, steps_per_epoch=len(X_train[1])//100 , epochs=5, validation_data=validation_generator, validation_steps = len(X_val[1])//100,
-                    workers=10,use_multiprocessing = True, max_queue_size=40, verbose =1, shuffle=True, callbacks = [earlystop])
+#earlystop = keras.callbacks.EarlyStopping(monitor='val_auroc', min_delta=0, patience=2, verbose=0, mode='max', baseline=None, restore_best_weights=False)
+#history = model.fit_generator(generator=training_generator, steps_per_epoch=len(X_train[1])//100 , epochs=5, validation_data=validation_generator, validation_steps = len(X_val[1])//100,
+#                    workers=10,use_multiprocessing = True, max_queue_size=40, verbose =1, shuffle=True, callbacks = [earlystop])
+
+#model.save('./model_decom_img_vbi_83.tmod')
+model.load_weights('./model_decom_img_vbi_83.tmod')
+
 generator = DataGenerator(X_test, y_test, batch_size=100)
 prediction = model.predict_generator(generator, steps=len(X_test[1])//100, max_queue_size=10, workers=7, use_multiprocessing=True, verbose=0)
 label = y_test
@@ -769,7 +773,7 @@ dic['prediction'] = prediction
 dic['label'] = label
 dic['data'] = X_test
 
-with open('./data_vbi'+ text_sim_metrics[-1]+'.map', 'wb') as f:
+with open('./data_vbi'+'.map', 'wb') as f:
     pkl.dump(dic, f)
 
 
@@ -782,7 +786,7 @@ print('history finished.. ')
 #with open('./model_decom_img_vbi_50.mod','wb') as f:
 #      pkl.dump(model, f)
 
-model.save('./model_decom_img_vbi_83.tmod')
+#model.save('./model_decom_img_vbi_83.tmod')
 
 histories['acc'].extend(history.history['acc'])
 histories['val_acc'].extend(history.history['val_acc'])

@@ -129,8 +129,8 @@ def deep_er_model_generator(data_dict,
         data['val']['left'][column] = data_dict['val_1'][column]
         data['val']['right'][column] = data_dict['val_2'][column]
 
-        data['test']['left'][column] = data_dict['test_1'][column][:500]
-        data['test']['right'][column] = data_dict['test_2'][column][:500]
+        data['test']['left'][column] = data_dict['test_1'][column]
+        data['test']['right'][column] = data_dict['test_2'][column]
     
     # if enabled, create a binary column for each feature indicating whether
     # it contains a missing value. for text data, this will be a list with
@@ -187,7 +187,7 @@ def deep_er_model_generator(data_dict,
     # convert y-values
     y_train = to_categorical(data_dict['train_y'])
     y_val = to_categorical(data_dict['val_y'])
-    y_test = to_categorical(data_dict['test_y'])[:500]
+    y_test = to_categorical(data_dict['test_y'])
     
     data_train = data['train']
     data_test = data['test']
@@ -558,9 +558,9 @@ batch_size = 100
 epochs = 7
 earlystop = keras.callbacks.EarlyStopping(monitor='val_auroc', min_delta=0, patience=2, verbose=0, mode='max', baseline=None, restore_best_weights=True)
 #checkpoint = keras.callbacks.ModelCheckpoint('./checkpoints/'+'baseline'+text_sim_metrics[0] +'.hdf5', monitor='val_auroc', verbose=1, save_best_only=True, mode='max')
-history = model.fit_generator(generator=training_generator, steps_per_epoch=len(X_train[1])//batch_size , epochs= epochs, validation_data=validation_generator, validation_steps = len(X_val[1])//batch_size,
-                        workers = 16, use_multiprocessing = True, max_queue_size= 40, verbose =1, shuffle=True, callbacks = [earlystop])
-
+#history = model.fit_generator(generator=training_generator, steps_per_epoch=len(X_train[1])//batch_size , epochs= epochs, validation_data=validation_generator, validation_steps = len(X_val[1])//batch_size,
+#                        workers = 16, use_multiprocessing = True, max_queue_size= 40, verbose =1, shuffle=True, callbacks = [earlystop])
+model.load_weights('./model_baselinelstm.h5')
 generator = DataGenerator(X_test, y_test, batch_size=100)
 prediction = model.predict_generator(generator, steps=len(X_test[1])//100, max_queue_size=10, workers=7, use_multiprocessing=True, verbose=0)
 label = y_test

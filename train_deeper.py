@@ -395,6 +395,11 @@ def main(args):
     with open('./dataset_fit_valimg.map', 'rb') as f:
         X_val = pkl.load(f)
 
+    with open('./dataset_fit_testimg.map', 'rb') as f:
+        X_test = pkl.load(f)
+
+    with open('./y_fit_testimg.map', 'rb') as f:
+        y_test = pkl.load(f)   
 
     # import pickle as pkl
     # with open('./dataset_fit_trainnoimg.map', 'wb') as f:
@@ -415,8 +420,13 @@ def main(args):
     import keras
     earlystop = keras.callbacks.EarlyStopping(monitor='val_auroc', min_delta=0, patience=2, verbose=1, mode='max', baseline=None, restore_best_weights=True)
    # checkpoint = keras.callbacks.ModelCheckpoint('./checkpoints/'+ model_name + borad_log_dir+'.hdf5', monitor='val_f1_score', verbose=1, save_best_only=True, mode='max')
-    history = model.fit_generator(generator=training_generator, steps_per_epoch=len(X_train[1])//batch_size , epochs= 5, validation_data=validation_generator, validation_steps = len(X_val[1])//batch_size,
+    history = model.fit_generator(generator=training_generator, steps_per_epoch=len(X_train[1])//batch_size , epochs= 3, validation_data=validation_generator, validation_steps = len(X_val[1])//batch_size,
                          workers = workers, use_multiprocessing = True, max_queue_size= max_queue_size, verbose =1, shuffle=True, callbacks = [earlystop])
+    model_log = './model_log/'+ model_name + borad_log_dir +'h5'
+ #   with open( model_log, 'wb') as f:
+ #         pkl.dump(model, f)
+    model.save(model_log)
+    #model.load_weights('./model_log/'+ model_name + borad_log_dir +'.tmod')
     generator = DataGenerator(X_test, y_test, batch_size=100)
     prediction = model.predict_generator(generator, steps=len(X_test[1])//100, max_queue_size=10, workers=7, use_multiprocessing=True, verbose=0)
     label = y_test
@@ -425,8 +435,18 @@ def main(args):
     dic['label'] = label
     dic['data'] = X_test
 
-    with open('./data_'+model_name + text_sim_metrics[-1]+'.map', 'wb') as f:
+    with open('./data_'+model_name +'.map', 'wb') as f:
          pkl.dump(dic, f)
+
+    #from sklearn.metrics import precision_recall_curve, auc, average_precision_score
+    #p, r, th = precision_recall_curve(y_test, prediction)
+    #auc = auc(r, p)
+    #ap = average_precision_score(y_test, prediction)
+    
+    #dic['auc'] = auc
+    #dic['ap'] = ap
+    #with open('./data_'+model_name + text_sim_metrics[-1]+'.map+auc', 'wb') as f:
+    #     pkl.dump(dic, f)
 
     #history = model.fit(X_train, y_train, epochs=8, batch_size=100,
     #                    validation_data=(X_val, y_val),
@@ -434,10 +454,10 @@ def main(args):
 # len(X_train[1])//batch_size 
     print('history finished.. ')
 
-    model_log = './model_log/'+ model_name + borad_log_dir +'.tmod'
+#    model_log = './model_log/'+ model_name + borad_log_dir +'.tmod'
  #   with open( model_log, 'wb') as f:
  #         pkl.dump(model, f)
-    model.save(model_log)
+#    model.save(model_log)
 
     histories['acc'].extend(history.history['acc'])
     histories['val_acc'].extend(history.history['val_acc'])
@@ -454,7 +474,15 @@ def main(args):
     with open(history_log, 'wb') as f:
         pkl.dump(histories, f)
 
-
+    from sklearn.metrics import precision_recall_curve, auc, average_precision_score
+   # p, r, th = precision_recall_curve(y_test, prediction)
+   # auc = auc(r, p)
+   # ap = average_precision_score(y_test, prediction)
+   # print(ap, auc , '===========ap and auc============')
+   # dic['auc'] = auc
+   # dic['ap'] = ap
+   # with open('./data_'+model_name + text_sim_metrics[-1]+'.map+auc', 'wb') as f:
+   #      pkl.dump(dic, f)
 
 if __name__ == '__main__':
     args = get_args()
